@@ -17,29 +17,19 @@ def employees():
 
 
 def return_financial_year():
-    if today.month == 7:
+    if 7 <= today.month <= 12:
         year = today.year
         return AuVicFinancialYear(year=year)
-    elif 8 <= today.month <= 12:
-        return AuVicFinancialYear(year=today.year + 1)
     else:
-        return AuVicFinancialYear(year=today.year)
+        return AuVicFinancialYear(year=today.year - 1)
 
 
 def return_sql_query_start_date():
-    month = (today - DateOffset(months=1)).month
-    mask = (financial_year.calendar.date.dt.month == month)
-    month_df = financial_year.calendar.date[mask]
-    sql_query_start_date = month_df.min().date()
-    return sql_query_start_date
+    return financial_year.start_date
 
 
 def return_sql_query_end_date():
-    month = (today - DateOffset(months=1)).month
-    mask = (financial_year.calendar.date.dt.month == month)
-    month_df = financial_year.calendar.date[mask]
-    sql_query_end_date = month_df.max().date()
-    return sql_query_end_date
+    return financial_year.end_date
 
 
 if __name__ == "__main__":
@@ -47,7 +37,7 @@ if __name__ == "__main__":
     financial_year = return_financial_year()
     start_date = return_sql_query_start_date()
     end_date = return_sql_query_end_date()
-    # for employee in 'John Natschev',:
+    # for employee in ['John Natschev']:
     for employee in employees():
         feu = EmployeeUtilisation(
             end_date=end_date,
@@ -57,7 +47,7 @@ if __name__ == "__main__":
             today=today
         )
         employee_excel_file = pathlib.Path(
-            '../{} - Monthly - {} - Utilisation.xlsx'.format(feu.financial_year.year, feu.name)
+            '../{} - Yearly - {} - Utilisation.xlsx'.format(feu.financial_year.year, feu.name)
         )
         if not employee_excel_file.exists():
             feu.as_df.to_excel(excel_writer=employee_excel_file, index=False)
